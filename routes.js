@@ -27,6 +27,12 @@ router.post('/users', asyncHandler(async (req,res) => {
   res.status(201).location('/').end();
 }));
 
+router.delete('/users/:id', asyncHandler(async (req, res) => {
+  const user = await User.findByPk(req.params.id);
+  user.destroy();
+  res.status(200).location('/').end();
+}));
+
 router.get('/courses', asyncHandler( async (req,res) => {
   const courses = await Course.findAll({
     include: [
@@ -41,15 +47,16 @@ router.get('/courses/:id', asyncHandler( async (req,res) => {
   res.status(200).json(course);
 }));
 
-router.post('/courses', asyncHandler( async (req, res) => {
+router.post('/courses', authenticateUser, asyncHandler( async (req, res) => {
   const course = req.body;
   await Course.create(course);
   res.status(201).location('/').end();
 }));
 
-router.put('/courses/:id', asyncHandler( async (req, res) => {
+router.put('/courses/:id', authenticateUser, asyncHandler( async (req, res) => {
+  //const user = req.currentUser;
   const course = await Course.findByPk(req.params.id);
-  course.update({
+  await course.update({
     title: req.body.title,
     description: req.body.description,
     userId: req.body.userId
@@ -57,7 +64,8 @@ router.put('/courses/:id', asyncHandler( async (req, res) => {
   res.status(204).end();
 }));
 
-router.delete('/courses/:id', asyncHandler( async (req, res) => {
+router.delete('/courses/:id', authenticateUser, asyncHandler( async (req, res) => {
+  //const user = req.currentUser;
   const course = await Course.findByPk(req.params.id);
   course.destroy();
   res.status(204).end();
