@@ -84,7 +84,8 @@ router.get('/courses/:id', asyncHandler( async (req,res) => {
 router.post('/courses', authenticateUser, asyncHandler( async (req, res) => {
   const course = req.body;
   await Course.create(course);
-  res.status(201).location('/').end();
+  const newCourse = await Course.findOne({order: [['id', 'DESC']]});
+  res.status(201).location(`/courses/${newCourse.id}`).end();
 }));
 
 router.put('/courses/:id', authenticateUser, asyncHandler( async (req, res) => {
