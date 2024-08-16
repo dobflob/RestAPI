@@ -6,19 +6,14 @@ const morgan = require('morgan');
 const { sequelize } = require('./models');
 const routes = require('./routes');
 
-/* const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: 'fsjstd-restapi.db'
-}); */
-
-/* (async () => {
+(async () => {
   try {
     await sequelize.authenticate();
     console.log('Connection to the database successful!');
   } catch (error) {
     console.error('Error connecting to the database: ', error);
   }
-})(); */
+})();
 
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
@@ -55,10 +50,16 @@ app.use((err, req, res, next) => {
     console.error(`Global error handler: ${JSON.stringify(err.stack)}`);
   }
 
-  res.status(err.status || 500).json({
-    message: err.message,
-    error: {},
-  });
+  if(err.name === 'SequelizeUniqueConstraintError' || err.name === 'SequelizeValidationError') {
+    const errors = err.errors.map(err => err.message)
+    res.status(400).json({errors});
+  } else {
+    console.log(err);
+    res.status(err.status || 500).json({
+      message: err.message,
+      error: {},
+    });
+  }
 });
 
 // set our port

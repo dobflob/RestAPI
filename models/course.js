@@ -50,7 +50,15 @@ module.exports = (sequelize, DataTypes) => {
     Course.belongsTo(models.User, {
       foreignKey: {
         fieldName: 'userId',
-        allowNull: false
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: 'User is required'
+          },
+          notEmpty: {
+            msg: 'Please provide a user'
+          }
+        }
       }
     });
   };
